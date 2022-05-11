@@ -6,14 +6,18 @@
 version: "2.4"
 x-net: &net
   networks:
-      - main
+      - miniscope-network
 services:
   db:
     <<: *net
-    image: datajoint/mysql:5.7
+    image: mysql:5-debian
+    # image: datajoint/mysql:5.7
     container_name: workflow-miniscope-test-db
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-      - MYSQL_ROOT_PASSWORD=simple
+      MYSQL_ROOT_PASSWORD: simple
+    volumes:
+      - mysql:/var/lib/mysql
   workflow:
     <<: *net
     build:
@@ -47,6 +51,8 @@ services:
       - ..:/main/workflow-miniscope
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_started
 networks:
-  main:
+  miniscope-network:
+volumes:
+  mysql:
